@@ -5,7 +5,7 @@ import java.net.URL;
 import java.util.Map;
 
 public interface ScriptEvaluatorFactory {
-    String IMPLEMENTATION_QUALIFIED_NAME = "com#extendedclip#papi#expansion#javascript#evaluator#JavetScriptEvaluatorFactory";
+    String IMPLEMENTATION_QUALIFIED_NAME = "com#extendedclip#papi#expansion#javascript#evaluator#QuickJsScriptEvaluatorFactory";
 
     ScriptEvaluator create(final Map<String, Object> bindings);
 
