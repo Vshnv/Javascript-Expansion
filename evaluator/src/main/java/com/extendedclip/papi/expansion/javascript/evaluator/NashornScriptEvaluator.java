@@ -1,28 +1,34 @@
 package com.extendedclip.papi.expansion.javascript.evaluator;
 
-import com.koushikdutta.quack.*;
 
+import org.openjdk.nashorn.api.scripting.NashornScriptEngineFactory;
+
+import javax.script.ScriptEngine;
 import java.util.Map;
 
-public final class QuickJsScriptEvaluator implements ScriptEvaluator {
+public final class NashornScriptEvaluator implements ScriptEvaluator {
     private final Map<String, Object> bindings;
+    private final NashornScriptEngineFactory factory;
+    private final ScriptEngine engine;
 
-    public QuickJsScriptEvaluator(final Map<String, Object> bindings) {
+    public NashornScriptEvaluator(final Map<String, Object> bindings, final NashornScriptEngineFactory factory, ScriptEngine engine) {
         this.bindings = bindings;
+        this.factory = factory;
+        this.engine = engine;
     }
 
     @Override
     public Object execute(final Map<String, Object> additionalBindings, final String script) throws EvaluatorException {
         final long start = System.currentTimeMillis();
         final long startNano = System.nanoTime();
-        try (final QuackContext context = QuackContext.create(true)) {
+        try  {
             for (Map.Entry<String, Object> entry : bindings.entrySet()) {
-                bind(context, entry.getKey(), entry.getValue());
+                bind(engine, entry.getKey(), entry.getValue());
             }
             for (Map.Entry<String, Object> entry : additionalBindings.entrySet()) {
-                bind(context, entry.getKey(), entry.getValue());
+                bind(engine, entry.getKey(), entry.getValue());
             }
-            return context.evaluate(script);
+            return engine.eval(script);
         } catch (final Exception exception) {
             throw new EvaluatorException("Failed to evaluate requested script.", exception);
         } finally {
@@ -34,7 +40,7 @@ public final class QuickJsScriptEvaluator implements ScriptEvaluator {
         }
     }
 
-    private void bind(final QuackContext ctx, final String key, final Object value) {
-        ctx.getGlobalObject().set(key, value);
+    private void bind(final ScriptEngine engine, final String key, final Object value) {
+        engine.put(key, value);
     }
 }
